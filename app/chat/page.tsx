@@ -46,14 +46,32 @@ export default function Chat() {
     }, []);
 
     return (
-        <div>
-            <h1>Twitch Chat Messages</h1>
-            <div>{isConnected ? "Connected" : "Disconnected"}</div>
-            <ul>
-                {messages.map((msg, index) => (
-                    <li key={index}>{msg}</li>
-                ))}
-            </ul>
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-2xl h-[600px]">
+                <h1 className="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">Twitch Chat Messages</h1>
+                
+                <div className="flex items-center mb-4 justify-between">
+                    <div className={`rounded ${isConnected ? 'bg-green-500 text-gray-800' : 'bg-red-500 text-gray-800'} px-2 py-1`}>
+                        {isConnected ? "Connected" : "Disconnected"}
+                    </div>
+                    <div className="text-gray-400 text-xs">Channel: YourChannelName</div>
+                </div>
+    
+                <div className="overflow-y-auto max-h-[500px] border-t border-gray-700 pt-2">
+                    <ul>
+                        {[...messages].reverse().map((msg, index) => (
+                            <li key={index} className="mb-1 text-sm text-gray-300 break-words">
+                                {msg}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
         </div>
     );
+    
+    
+    
+    
+    
 }

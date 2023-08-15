@@ -29,7 +29,7 @@ async def get_oauth_token(client_id, client_secret):
     async with aiohttp.ClientSession() as session:
         async with session.post(url) as response:
             data = await response.json()
-            print(data)
+            # print(data)
             return data["access_token"]
 
 # async def forward_to_clients(message):
