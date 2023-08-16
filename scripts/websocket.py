@@ -3,9 +3,8 @@ import re
 import asyncio
 import aiohttp
 import websockets
-
+from ably import AblyRest
 from datetime import datetime
-from collections import deque
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,58 +14,21 @@ CLIENT_ID = os.environ.get("TWITCH_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET")
 CHANNEL_NAME = os.environ.get("TWITCH_CHANNEL_NAME")
 
+# Ably Configuration
+ably = AblyRest(os.environ.get("ABLY_API_KEY"))
+
 print(f"CLIENT_ID: {CLIENT_ID}, CLIENT_SECRET: {CLIENT_SECRET}, CHANNEL_NAME: {CHANNEL_NAME}")
-
-MAX_MESSAGES = 100
-messages_queue = deque(maxlen=MAX_MESSAGES)
-
-# Client Set for Websockets
-clients = set()
-# print("This is the clients: ",clients)
 
 async def get_oauth_token(client_id, client_secret):
     url = f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
     async with aiohttp.ClientSession() as session:
         async with session.post(url) as response:
             data = await response.json()
-            # print(data)
             return data["access_token"]
 
-# async def forward_to_clients(message):
-#     # This checks if there are any clients connected. 
-#     # If there are no clients connected, it just prints the message and exits the function.
-#     if not clients:
-#         print("No clients connected:", message)
-#         return
-#     await asyncio.wait([client.send(message) for client in clients])
-
 async def forward_to_clients(message):
-    for client in clients:
-        try:
-            await client.send(message)
-        except:
-            # This would catch any errors that might occur if sending fails, 
-            # such as if the client has disconnected but hasn't been removed from the clients set.
-            continue
-
-
-async def register_client(websocket):
-    clients.add(websocket)
-
-async def unregister_client(websocket):
-    clients.remove(websocket)
-
-async def ws_handler(websocket, path):
-    await register_client(websocket)
-    try:
-        async for message in websocket:
-            # This example assumes you just echo received messages.
-            # You can add more logic if needed.
-            await forward_to_clients(message)
-    except:
-        pass
-    finally:
-        await unregister_client(websocket)
+    channel = ably.channels.get('twitch-chat')
+    await channel.publish('message', message)
 
 async def receive_chat_messages():
     token = await get_oauth_token(CLIENT_ID, CLIENT_SECRET)
@@ -105,9 +67,5 @@ async def receive_chat_messages():
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    # Twitch Chat Receiver
     loop.create_task(receive_chat_messages())
-    # Start WebSocket Server
-    server = websockets.serve(ws_handler, 'localhost', 5678)
-    loop.run_until_complete(server)
     loop.run_forever()
