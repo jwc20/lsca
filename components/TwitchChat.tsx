@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-
-// Todo - add a way to use channelName using [slug]
 export default function TwitchChat({ channelName }) {
     const [messages, setMessages] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
+
+    console.log("channelName", channelName);
 
     useEffect(() => {
         let ws;
