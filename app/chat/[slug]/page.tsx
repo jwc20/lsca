@@ -1,16 +1,14 @@
 import TwitchChat from "@/components/TwitchChat";
+import React from "react";
 
 interface Props {
     channelName: string;
 }
 
-export default function ChatPage({
-    params: { channelName },
-}: {
-    params: Props;
-}) {
-    // write a function that takes in the channel name and returns the chat component
-    // the chat component will have a prop of channel name
+export default function ChatPage({ params }: Props) {
+    // console.log("CHannel page", params);
+    const channelName = params.slug;
+    // console.log(channelName)
 
     return (
         <div>
