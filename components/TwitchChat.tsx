@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-export default function Chat() {
+
+// Todo - add a way to use channelName using [slug]
+export default function TwitchChat({ channelName }) {
     const [messages, setMessages] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
 
@@ -48,19 +50,31 @@ export default function Chat() {
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center">
             <div className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-2xl h-[600px]">
-                <h1 className="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">Twitch Chat Messages</h1>
-                
+                <h1 className="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">
+                    Twitch Chat Messages
+                </h1>
+
                 <div className="flex items-center mb-4 justify-between">
-                    <div className={`rounded ${isConnected ? 'bg-green-500 text-gray-800' : 'bg-red-500 text-gray-800'} px-2 py-1`}>
+                    <div
+                        className={`rounded ${
+                            isConnected
+                                ? "bg-green-500 text-gray-800"
+                                : "bg-red-500 text-gray-800"
+                        } px-2 py-1`}
+                    >
                         {isConnected ? "Connected" : "Disconnected"}
                     </div>
-                    <div className="text-gray-400 text-xs">Channel: YourChannelName</div>
                 </div>
-    
+
                 <div className="overflow-y-auto max-h-[500px] border-t border-gray-700 pt-2">
                     <ul>
                         {[...messages].reverse().map((msg, index) => (
-                            <li key={index} className="mb-1 text-sm text-gray-300 break-words">
+                            <li
+                                key={index}
+                                className={`mb-1 text-sm text-gray-300 break-words ${
+                                    index % 2 === 0 ? "bg-gray-750" : ""
+                                }`}
+                            >
                                 {msg}
                             </li>
                         ))}
@@ -69,9 +83,4 @@ export default function Chat() {
             </div>
         </div>
     );
-    
-    
-    
-    
-    
 }
