@@ -12,7 +12,13 @@ export default function TwitchChat({ channelName }) {
         let ws;
 
         const connectWebSocket = () => {
-            ws = new WebSocket("ws://localhost:5678");
+            ws = new WebSocket("ws://localhost:5678"); 
+            
+            // Todo: use ably client to get chat messages
+            // Use pub/sub to get messages from the server
+            // https://www.ably.io/documentation/realtime/channels-messages
+            // https://www.ably.io/documentation/realtime/channels-messages#publish-subscribe
+            // use subscribe to get messages from the server
 
             ws.onopen = () => {
                 console.log("Connected to the WebSocket");
@@ -48,32 +54,64 @@ export default function TwitchChat({ channelName }) {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-            <div className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-2xl h-[600px]">
-                <h1 className="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">
-                    Twitch Chat Messages
-                </h1>
+        <div
+            style={{
+                height: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "20px",
+            }}
+        >
+            <div
+                style={{
+                    padding: "20px",
+                    maxWidth: "600px",
+                    width: "100%",
+                    boxSizing: "border-box",
+                }}
+            >
+                <h1 style={{ marginBottom: "20px" }}>Twitch Chat Messages</h1>
 
-                <div className="flex items-center mb-4 justify-between">
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "20px",
+                    }}
+                >
                     <div
-                        className={`rounded ${
-                            isConnected
-                                ? "bg-green-500 text-gray-800"
-                                : "bg-red-500 text-gray-800"
-                        } px-2 py-1`}
+                        style={{
+                            borderRadius: "5px",
+                            padding: "10px",
+                            color: "white",
+                            backgroundColor: isConnected ? "green" : "red",
+                        }}
                     >
                         {isConnected ? "Connected" : "Disconnected"}
                     </div>
                 </div>
 
-                <div className="overflow-y-auto max-h-[500px] border-t border-gray-700 pt-2">
+                <div
+                    style={{
+                        maxHeight: "500px",
+                        overflowY: "auto",
+                        paddingTop: "10px",
+                    }}
+                >
                     <ul>
                         {[...messages].reverse().map((msg, index) => (
                             <li
                                 key={index}
-                                className={`mb-1 text-sm text-gray-300 break-words ${
-                                    index % 2 === 0 ? "bg-gray-750" : ""
-                                }`}
+                                style={{
+                                    marginBottom: "5px",
+                                    wordBreak: "break-word",
+                                    backgroundColor:
+                                        index % 2 === 0
+                                            ? "#333"
+                                            : "transparent",
+                                }}
                             >
                                 {msg}
                             </li>
