@@ -2,6 +2,16 @@
 
 ## Getting Started
 
+Install the python dependencies.
+```bash
+pip install -r requirements.txt
+```
+
+Install Next.js client. 
+```bash
+npm install
+```
+
 Start the websocket server:
 
 ```bash
