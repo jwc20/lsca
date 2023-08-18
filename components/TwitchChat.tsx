@@ -12,7 +12,7 @@ export default function TwitchChat({ channelName }) {
         let ws;
 
         const connectWebSocket = () => {
-            ws = new WebSocket("ws://localhost:5678"); 
+            ws = new WebSocket("ws://127.0.0.1:5678"); 
             
             // Todo: use ably client to get chat messages
             // Use pub/sub to get messages from the server
