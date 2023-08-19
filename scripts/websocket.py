@@ -3,7 +3,7 @@ import re
 import asyncio
 import aiohttp
 import websockets
-from ably import AblyRest
+# from ably import AblyRest
 
 
 from datetime import datetime
@@ -15,9 +15,11 @@ load_dotenv()
 # Twitch Configurations
 CLIENT_ID = os.environ.get("TWITCH_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET")
-CHANNEL_NAME = os.environ.get("TWITCH_CHANNEL_NAME")
+# CHANNEL_NAME = os.environ.get("TWITCH_CHANNEL_NAME")
+CHANNEL_NAME = "zackrawrr"
+
 print(
-    f"CLIENT_ID: {CLIENT_ID}, CLIENT_SECRET: {CLIENT_SECRET}, CHANNEL_NAME: {CHANNEL_NAME}"
+    f"CLIENT_ID: {CLIENT_ID}, CLIENT_SECRET: {CLIENT_SECRET}"
 )
 
 MAX_MESSAGES = 100
@@ -77,6 +79,7 @@ async def receive_chat_messages():
     while True:
         try:
             async with websockets.connect(websocket_url) as websocket:
+                print(websocket_url)
                 await websocket.send(f"PASS oauth:{token}")
                 await websocket.send(f"NICK justinfan123")  # for read-only
                 await websocket.send(f"JOIN #{CHANNEL_NAME}")
@@ -112,7 +115,11 @@ if __name__ == "__main__":
     # For local websocket server
     loop = asyncio.get_event_loop()
     loop.create_task(receive_chat_messages())  # Twitch Chat Receiver
-    server = websockets.serve(ws_handler, "localhost", 5678)  # Start WebSocket Server
+    # server = websockets.serve(ws_handler, "0.0.0.0", 8080) # Start WebSocket Server
+    server = websockets.serve(ws_handler, "127.0.0.1", 8080)  
+    # server = websockets.serve(ws_handler, "localhost", 5678)
+
+    print("Websocket server address: ", server)
     loop.run_until_complete(server)
     loop.run_forever()
 
@@ -120,3 +127,4 @@ if __name__ == "__main__":
     # loop = asyncio.get_event_loop()
     # loop.create_task(receive_chat_messages())
     # loop.run_forever()
+
