@@ -6,17 +6,10 @@ export default function TwitchChat({ channelName }: { channelName: string }) {
     const [messages, setMessages] = useState<string[]>([]);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
-    // const [scriptError, setScriptError] = useState("");
-    const [afterEndOfNames, setAfterEndOfNames] = useState(false);
+    const [afterEndOfNames, setAfterEndOfNames] = useState<boolean>(false);
 
     const getToken = async () => {
-        const res = await fetch("scripts/getToken.js", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ channelName }),
-        });
+        const res = await fetch("scripts/getToken.js");
         const { token } = await res.json();
         setToken(token);
     };
