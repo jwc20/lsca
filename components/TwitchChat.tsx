@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export default function TwitchChat({ channelName }) {
+export default function TwitchChat({ channelName }: { channelName: string }) {
     const [messages, setMessages] = useState<string[]>([]);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
-    const [scriptError, setScriptError] = useState("");
+    // const [scriptError, setScriptError] = useState("");
     const [afterEndOfNames, setAfterEndOfNames] = useState(false);
 
     const getToken = async () => {
