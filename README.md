@@ -33,3 +33,27 @@ TWITCH_CHANNEL_NAME = {sodapoppin}
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+```
+chats (collection)
+  |
+  └─ sodapoppin (document)
+       |
+       └─ 2023 (collection)
+            |
+            └─ 09 (document)
+                 |
+                 └─ 02 (collection - This is the `dayCollectionRef`)
+                      |
+                      ├─ 01 (document - Representing 1am)
+                      |    |
+                      |    └─ chats (field - An array of chat messages)
+                      |
+                      ├─ 02 (document - Representing 2am)
+                      |    |
+                      |    └─ chats (field)
+                      |
+                      └─ ... (more documents for each hour of the day)
+
+```
