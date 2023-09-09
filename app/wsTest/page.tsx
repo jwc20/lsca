@@ -9,7 +9,7 @@ export default function wsTest({ channelName }) {
 
     const handleLabelToxicity = async (chatId, isToxic, timestamp) => {
         const updatedChats = chats.map((chat) => {
-            console.log(chat.chat_id, chatId, isToxic);
+            // console.log(chat.chat_id, chatId, isToxic);
             if (chat.chat_id === chatId) {
                 return {
                     ...chat,
@@ -32,7 +32,7 @@ export default function wsTest({ channelName }) {
         const connectWebSocket = () => {
         
             let socket = new WebSocket("ws://35.226.133.69:8080/");
-            console.log(socket);
+            // console.log(socket);
             socket.onopen = function (event) {
                 console.log("WebSocket connection opened:", event);
                 setIsConnected(true);
