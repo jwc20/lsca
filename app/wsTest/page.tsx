@@ -5,10 +5,9 @@ import { updateChatToxicity } from "../../utils/utils";
 
 export default function wsTest({ channelName }) {
     const [chats, setChats] = useState<string[]>([]);
+    const [isConnected, setIsConnected] = useState(false);
 
-    const handleLabelToxicity = async (chatId, isToxic) => {
-        // Update frontend state
-        console.log(isToxic);
+    const handleLabelToxicity = async (chatId, isToxic, timestamp) => {
         const updatedChats = chats.map((chat) => {
             console.log(chat.chat_id, chatId, isToxic);
             if (chat.chat_id === chatId) {
@@ -22,36 +21,49 @@ export default function wsTest({ channelName }) {
         setChats(updatedChats);
 
         // Update Firestore
-        await updateChatToxicity(channelName, chatId, isToxic);
+        await updateChatToxicity(channelName, chatId, isToxic, timestamp);
     };
 
     useEffect(() => {
+        let socket: WebSocket;
         // const socket = new WebSocket('ws://localhost:8765/');
-        let socket = new WebSocket("ws://localhost:8080/");
+        // let socket = new WebSocket("ws://localhost:8080/");
+        
+        const connectWebSocket = () => {
+        
+            let socket = new WebSocket("ws://35.226.133.69:8080/");
+            console.log(socket);
+            socket.onopen = function (event) {
+                console.log("WebSocket connection opened:", event);
+                setIsConnected(true);
+                //   let jsonData = JSON.stringify({test: "Hello, Secure Server!"});
+                //   socket.send(jsonData);
+            };
 
-        socket.onopen = function (event) {
-            console.log("WebSocket connection opened:", event);
-            //   let jsonData = JSON.stringify({test: "Hello, Secure Server!"});
-            //   socket.send(jsonData);
+            socket.onmessage = function (event) {
+                let jsonData = JSON.parse(event.data);
+                // console.log(jsonData);
+                setChats((prevChats) => [...prevChats, jsonData]);
+            };
+
+            socket.onerror = function (error) {
+                console.error("WebSocket Error:", error);
+            };
+
+            socket.onclose = (event) => {
+                if (event.wasClean) {
+                    console.log(
+                        `Closed clean, code=${event.code}, reason=${event.reason}`
+                    );
+                } else {
+                    console.log("Connection died");
+                }
+                setIsConnected(false);
+                setTimeout(connectWebSocket, 5000); // try to reconnect in 5 seconds
+            };
         };
 
-        socket.onmessage = function (event) {
-            let jsonData = JSON.parse(event.data);
-            // console.log(jsonData);
-            setChats((prevChats) => [...prevChats, jsonData]);
-        };
-
-        socket.onerror = function (error) {
-            console.error("WebSocket Error:", error);
-        };
-
-        socket.onclose = function (event) {
-            if (event.wasClean) {
-                console.log("WebSocket connection closed cleanly:", event);
-            } else {
-                console.error("Connection died");
-            }
-        };
+        connectWebSocket();
 
         return () => {
             socket.close();
@@ -85,7 +97,8 @@ export default function wsTest({ channelName }) {
                             onClick={() =>
                                 handleLabelToxicity(
                                     chat.chat_id,
-                                    !chat.is_toxic
+                                    !chat.is_toxic,
+                                    chat.timestamp
                                 )
                             }
                         >
