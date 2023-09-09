@@ -1,9 +1,6 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { updateChatToxicity } from "../../utils/utils";
-
-
 
 function segmentMessageBasedOnWidth(message, containerWidth, fontStyle = '14px monospace') {
     const canvas = document.createElement('canvas');
@@ -47,8 +44,6 @@ const Message = ({ message, containerWidth }) => {
         </div>
     );
 };
-
-
 
 
 export default function wsTest({ channelName }) {
@@ -128,33 +123,46 @@ export default function wsTest({ channelName }) {
             }
         }
 
-        handleResize(); // initialize on mount
+        handleResize(); 
         window.addEventListener('resize', handleResize);
-
         return () => window.removeEventListener('resize', handleResize);
     }, [containerRef]);
-  
+
+    const timestampWidth = 60; 
+    const usernameWidth = 100; 
+    const margins = 24; 
+    const buttonWidth = 80; 
+
+    const messageWidth = width - timestampWidth - usernameWidth - margins - buttonWidth;
+
+
+
 
 
     
     return (
-        <div className="bg-black p-4 h-full min-h-screen font-mono text-xs" ref={containerRef}>
+        <div className="bg-black p-4 h-full min-h-screen font-mono text-xs overflow-x-hiddenoverflow-anchor-enabled" ref={containerRef}>
             <div className="border-b border-gray-700 mb-4">
-                <h2 className="text-white text-base">Arch Linux IRC</h2> {/* Resetting title size */}
+                <h2 className="text-white text-base">omfs24 chat</h2>
             </div>
-    
-            <ul className="overflow-y-auto">
+
+            <ul className="overflow-y-hidden w-full">
                 {chats.slice().reverse().map((chat, index) => (
-                    <li key={index} className="py-0 border-gray-700 flex items-start whitespace-nowrap">
+                    <li 
+                        key={index} 
+                        className={`py-0 border-b border-gray-700 flex items-start ${chat.is_toxic ? 'bg-red-600' : ''}`}
+                    >
                         <span className="text-green-400 font-bold inline-block w-20 mr-4 flex-none">
                             {new Date(chat.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                         </span>
                         <span className="inline-block w-32 text-right font-bold text-green-400 mr-4 flex-none">
                             {chat.username || ""}
                         </span>
-                        <Message message={chat.chat_message} containerWidth={width} />
+                        <div className="flex-grow overflow-x-hidden">
+                            <Message message={chat.chat_message} containerWidth={messageWidth} />
+                        </div>
                         <button
-                            className="text-white px-2 py-0.5 ml-4 flex-none"
+                            className="ml-4 text-white px-2 py-0.5 w-24 flex-none"
                             onClick={() => handleLabelToxicity(chat.chat_id, !chat.is_toxic, chat.timestamp)}
                         >
                             {chat.is_toxic ? "Not Toxic" : "Toxic"}
@@ -164,7 +172,6 @@ export default function wsTest({ channelName }) {
             </ul>
         </div>
     );
-    
       
     
 }
