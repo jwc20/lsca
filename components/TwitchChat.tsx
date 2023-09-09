@@ -2,78 +2,142 @@
 
 import { useEffect, useState } from "react";
 
-export default function TwitchChat({ channelName }) {
-    const [messages, setMessages] = useState([]);
-    const [isConnected, setIsConnected] = useState(false);
+export default function TwitchChat({ channelName }: { channelName: string }) {
+    const [messages, setMessages] = useState<string[]>([]);
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [token, setToken] = useState<string>("");
+    const [afterEndOfNames, setAfterEndOfNames] = useState<boolean>(false);
 
-    console.log("channelName", channelName);
+    const getToken = async () => {
+        const res = await fetch("scripts/getToken.js");
+        const { token } = await res.json();
+        setToken(token);
+    };
 
     useEffect(() => {
-        let ws;
+        const websocket_url = "wss://irc-ws.chat.twitch.tv:443";
 
-        const connectWebSocket = () => {
-            ws = new WebSocket("ws://localhost:5678");
+        let websocket: WebSocket;
 
-            ws.onopen = () => {
-                console.log("Connected to the WebSocket");
+        async function startWebSocketConnection() {
+            websocket = new WebSocket(websocket_url);
+
+            websocket.onopen = () => {
                 setIsConnected(true);
+                websocket.send(`PASS oauth:${token}`);
+                websocket.send(`NICK justinfan123`);
+                websocket.send(`JOIN #${channelName}`);
             };
 
-            ws.onmessage = (event) => {
-                setMessages((prevMessages) => [...prevMessages, event.data]);
-            };
+            websocket.onmessage = (event) => {
+                let message = event.data.replace("\n", "").trim();
 
-            ws.onerror = (error) => {
-                console.error("WebSocket Error", error);
-            };
-
-            ws.onclose = (event) => {
-                if (event.wasClean) {
-                    console.log(
-                        `Closed clean, code=${event.code}, reason=${event.reason}`
-                    );
+                if (!afterEndOfNames) {
+                    if (/:End of \/NAMES list/.test(message)) {
+                        setAfterEndOfNames(true);
+                        return;
+                    }
                 } else {
-                    console.log("Connection died");
-                }
-                setIsConnected(false);
-                setTimeout(connectWebSocket, 5000); // try to reconnect in 5 seconds
-            };
-        };
+                    const match_nick = /@(\w+)\.tmi\.twitch\.tv/.exec(message);
+                    const match_chat = /PRIVMSG #\w+ :(.*)/.exec(message);
+                    const current_time = new Date().toLocaleTimeString(
+                        "en-US",
+                        {
+                            hour12: false,
+                            hour: "numeric",
+                            minute: "numeric",
+                            second: "numeric",
+                        }
+                    );
+                    const username = match_nick ? match_nick[1] : "";
+                    const chat_message = match_chat ? match_chat[1] : "";
+                    const formatted_message = `[${current_time}] <${username}> ${chat_message}`;
 
-        connectWebSocket();
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        formatted_message,
+                    ]);
+                }
+            };
+
+            websocket.onerror = (err: Event) => {
+                setIsConnected(false);
+                console.error("WebSocket Error:", err);
+            };
+
+            websocket.onclose = () => {
+                setIsConnected(false);
+            };
+        }
+
+        startWebSocketConnection();
 
         return () => {
-            ws.close();
+            if (websocket) {
+                websocket.close();
+            }
         };
-    }, []);
+    }, [channelName, token, afterEndOfNames]);
 
     return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-            <div className="bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-2xl h-[600px]">
-                <h1 className="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">
-                    Twitch Chat Messages
-                </h1>
+        <div
+            style={{
+                height: "100vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "20px",
+            }}
+        >
+            <div
+                style={{
+                    padding: "20px",
+                    maxWidth: "600px",
+                    width: "100%",
+                    boxSizing: "border-box",
+                }}
+            >
+                <h1 style={{ marginBottom: "20px" }}>Twitch Chat Messages</h1>
 
-                <div className="flex items-center mb-4 justify-between">
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "20px",
+                    }}
+                >
                     <div
-                        className={`rounded ${
-                            isConnected
-                                ? "bg-green-500 text-gray-800"
-                                : "bg-red-500 text-gray-800"
-                        } px-2 py-1`}
+                        style={{
+                            borderRadius: "5px",
+                            padding: "10px",
+                            color: "white",
+                            backgroundColor: isConnected ? "green" : "red",
+                        }}
                     >
                         {isConnected ? "Connected" : "Disconnected"}
                     </div>
                 </div>
 
-                <div className="overflow-y-auto max-h-[500px] border-t border-gray-700 pt-2">
+                <div
+                    style={{
+                        maxHeight: "500px",
+                        overflowY: "auto",
+                        paddingTop: "10px",
+                    }}
+                >
                     <ul>
                         {[...messages].reverse().map((msg, index) => (
                             <li
                                 key={index}
-                                className={`mb-1 text-sm text-gray-300 break-words ${
-                                    index % 2 === 0 ? "bg-gray-750" : ""
-                                }`}
+                                style={{
+                                    marginBottom: "5px",
+                                    wordBreak: "break-word",
+                                    backgroundColor:
+                                        index % 2 === 0
+                                            ? "#333"
+                                            : "transparent",
+                                }}
                             >
                                 {msg}
                             </li>

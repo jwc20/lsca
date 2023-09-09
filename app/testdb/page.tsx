@@ -1,4 +1,4 @@
-import TwitchChat from "@/components/TwitchChat";
+import TwitchChatDB from "@/components/TwitchChatDB";
 
 interface Props {
     params: {
@@ -11,7 +11,7 @@ export default function ChatPage({ params }: Props) {
 
     return (
         <div>
-            <TwitchChat channelName={channelName} />
+            <TwitchChatDB channelName={channelName} />
         </div>
     );
 }

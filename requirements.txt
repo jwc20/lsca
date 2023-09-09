@@ -1,5 +1,6 @@
 openai
 requests
 python-dotenv
-ably
 asyncio
+aiohttp
+websockets
