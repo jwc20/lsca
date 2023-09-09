@@ -34,7 +34,7 @@ export default function wsTest({ channelName }) {
             let socket = new WebSocket("ws://35.226.133.69:8080/");
             // console.log(socket);
             socket.onopen = function (event) {
-                console.log("WebSocket connection opened:", event);
+                console.log("WebSocket connection opened");
                 setIsConnected(true);
                 //   let jsonData = JSON.stringify({test: "Hello, Secure Server!"});
                 //   socket.send(jsonData);

@@ -13,7 +13,8 @@ export async function updateChatToxicity(channelName, chatId, isToxic, timestamp
 
     // console.log(year, month, day, hours)
 
-    const channelName1 = "pressed___";
+    const channelName1 = "sodapoppin";
+    // console.log(channelName, chatId, isToxic, timestamp)
 
     const hourDocPath = `/chats/${channelName1}/${year}/${month}/${day}/${hours}`; 
     // /chats/pressed___/2023/09/09/15
