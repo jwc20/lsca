@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react";
 import { updateChatToxicity } from "../../utils/utils";
 
-export default function wsTest() {
+export default function wsTest({ channelName }) {
     const [chats, setChats] = useState<string[]>([]);
 
     const handleLabelToxicity = async (chatId, isToxic) => {
         // Update frontend state
+        console.log(isToxic);
         const updatedChats = chats.map((chat) => {
-            console.log(chat.id, chatId, isToxic)
-            if (chat.id === chatId) {
+            console.log(chat.chat_id, chatId, isToxic);
+            if (chat.chat_id === chatId) {
                 return {
                     ...chat,
                     is_toxic: isToxic,
@@ -21,7 +22,7 @@ export default function wsTest() {
         setChats(updatedChats);
 
         // Update Firestore
-        await updateChatToxicity(chatId, isToxic);
+        await updateChatToxicity(channelName, chatId, isToxic);
     };
 
     useEffect(() => {
@@ -80,29 +81,18 @@ export default function wsTest() {
                             {chat.chat_message}
                         </span>
                         <button
-                            className="text-white ml-2"
+                            className="text-white ml-2 bg-blue-500 px-2 py-1 rounded"
                             onClick={() =>
-                                handleLabelToxicity(chat.id, !chat.is_toxic)
+                                handleLabelToxicity(
+                                    chat.chat_id,
+                                    !chat.is_toxic
+                                )
                             }
                         >
                             {chat.is_toxic ? "Not Toxic" : "Toxic"}
                         </button>
 
-                        <span className="text-white ml-2">
-                            {chat.chat_id}
-                        </span>
-
-
-                        
-                        {/* <span className="text-white ml-2">
-                        ({chat.preprocessed_chat_message})
-                        </span> */}
-
-                        <span className="text-white ml-2">{chat.is_toxic}</span>
-
-                        {/* <span className="text-white ml-2">
-                        {chat.vw_toxicity_score}
-                    </span> */}
+                        <span className="text-white ml-2">{chat.chat_id}</span>
 
                         <span className="text-gray-400 text-sm ml-4">
                             {new Date(chat.timestamp).toLocaleString()}
