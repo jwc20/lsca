@@ -112,7 +112,7 @@ const ChatComponent = ({ year, month, day, hour }) => {
                     className="flex flex-col-reverse overflow-y-auto w-full h-[80vh] mb-4"
                     ref={chatListRef}
                 >
-                    {[...chats].reverse().map((chat, index) => (
+                    {[...chats].map((chat, index) => (
                         <li
                             key={index}
                             className={`py-0 border-b border-gray-700 flex items-start ${
