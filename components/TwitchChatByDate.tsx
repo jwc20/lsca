@@ -57,6 +57,7 @@ const Message = ({ message, containerWidth }) => {
 
 const ChatComponent = ({ year, month, day, hour }) => {
     const [chats, setChats] = useState([]);
+    const chatListRef = useRef(null);
 
     useEffect(() => {
         // const chatPath = "/chats/sodapoppin/2023/09/02/05"; // TODO: get from URL
@@ -89,28 +90,35 @@ const ChatComponent = ({ year, month, day, hour }) => {
         return () => window.removeEventListener("resize", handleResize);
     }, [containerRef]);
 
-    return (
-        <div
-            className="bg-black p-4 h-full min-h-screen font-mono text-xs"
-            ref={containerRef}
-        >
-            <div className="border-b border-gray-700 mb-4">
-                <h2 className="text-white text-base">omfs24 chat</h2>{" "}
-                {/* Resetting title size */}
-            </div>
 
-            <ul className="overflow-y-auto">
-                {chats
-                    .slice()
-                    .reverse()
-                    .map((chat, index) => (
+    const timestampWidth = 60;
+    const usernameWidth = 100;
+    const margins = 24;
+    const buttonWidth = 80;
+
+    const messageWidth =
+        width - timestampWidth - usernameWidth - margins - buttonWidth;
+
+        return (
+            <div
+            className="bg-black p-4 h- min-h-screen font-mono text-xs overflow-x-hidden overflow-anchor-enabled"
+                ref={containerRef}
+            >
+                <div className="border-b border-gray-700 mb-4">
+                    <h2 className="text-white text-base">y/m/d: {year}/{month}/{day}; hour: {hour}</h2>
+                </div>
+    
+                <ul
+                    className="flex flex-col-reverse overflow-y-auto w-full h-[80vh] mb-4"
+                    ref={chatListRef}
+                >
+                    {[...chats].reverse().map((chat, index) => (
                         <li
                             key={index}
                             className={`py-0 border-b border-gray-700 flex items-start ${
                                 chat.is_toxic ? "bg-red-600" : ""
                             }`}
                         >
-                            {" "}
                             <span className="text-green-400 font-bold inline-block w-20 mr-4 flex-none">
                                 {new Date(chat.timestamp).toLocaleTimeString(
                                     "en-US",
@@ -125,12 +133,14 @@ const ChatComponent = ({ year, month, day, hour }) => {
                             <span className="inline-block w-32 text-right font-bold text-green-400 mr-4 flex-none">
                                 {chat.username || ""}
                             </span>
-                            <Message
-                                message={chat.chat_message}
-                                containerWidth={width}
-                            />
+                            <div className="flex-grow overflow-x-hidden">
+                                <Message
+                                    message={chat.chat_message}
+                                    containerWidth={messageWidth}
+                                />
+                            </div>
                             <button
-                                className="text-white px-2 py-0.5 ml-4 flex-none"
+                                className="ml-4 text-white px-2 flex-none"
                                 onClick={() =>
                                     handleLabelToxicity(
                                         chat.chat_id,
@@ -139,13 +149,13 @@ const ChatComponent = ({ year, month, day, hour }) => {
                                     )
                                 }
                             >
-                                {chat.is_toxic ? "Not Toxic" : "Toxic"}
+                                {chat.is_toxic ? "Toxic" : "Not Toxic"}
                             </button>
                         </li>
                     ))}
-            </ul>
-        </div>
-    );
+                </ul>
+            </div>
+        );
 };
 
 export default ChatComponent;

@@ -23,10 +23,7 @@ export default function HourPage({ params }: Props) {
 
     return (
         <div>
-            <p>Year: {year}</p>
-            <p>Month: {month}</p>
-            <p>Day: {day}</p>
-            <p>Hour: {hour}</p>
+            {/* <p>Year: {year} Month: {month} Day: {day} Hour: {hour}</p> */}
             <TwitchChatByDate year={year} month={month} day={day} hour={hour} />
         </div>
     );
