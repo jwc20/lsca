@@ -185,7 +185,7 @@ export default function wsTest( ) {
                             />
                         </div>
                         <button
-                            className="ml-4 text-white px-2 py-0.5 flex-none"
+                            className="ml-4 text-white px-2 flex-none"
                             onClick={() =>
                                 handleLabelToxicity(
                                     chat.chat_id,

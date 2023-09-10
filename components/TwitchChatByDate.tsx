@@ -95,7 +95,7 @@ const ChatComponent = ({ year, month, day, hour }) => {
             ref={containerRef}
         >
             <div className="border-b border-gray-700 mb-4">
-                <h2 className="text-white text-base">Arch Linux IRC</h2>{" "}
+                <h2 className="text-white text-base">omfs24 chat</h2>{" "}
                 {/* Resetting title size */}
             </div>
 
@@ -130,7 +130,7 @@ const ChatComponent = ({ year, month, day, hour }) => {
                                 containerWidth={width}
                             />
                             <button
-                                className="text-black px-2 py-0.5 ml-4 flex-none"
+                                className="text-white px-2 py-0.5 ml-4 flex-none"
                                 onClick={() =>
                                     handleLabelToxicity(
                                         chat.chat_id,
