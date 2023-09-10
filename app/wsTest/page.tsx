@@ -53,7 +53,8 @@ const Message = ({ message, containerWidth }) => {
     );
 };
 
-export default function wsTest({ channelName }) {
+export default function wsTest( ) {
+    const channelName = "omfs24"; // TODO: for test change later 
     const [chats, setChats] = useState<string[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
