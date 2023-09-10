@@ -182,7 +182,7 @@ export default function wsTest({ channelName }) {
                             />
                         </div>
                         <button
-                            className="ml-4 text-white px-2 py-0.5 w-24 flex-none"
+                            className="ml-4 text-white px-2 py-0.5 flex-none"
                             onClick={() =>
                                 handleLabelToxicity(
                                     chat.chat_id,
@@ -191,7 +191,7 @@ export default function wsTest({ channelName }) {
                                 )
                             }
                         >
-                            {chat.is_toxic ? "Not Toxic" : "Toxic"}
+                            {chat.is_toxic ? "Toxic" : "Not Toxic"}
                         </button>
                     </li>
                 ))}
