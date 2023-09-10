@@ -77,7 +77,7 @@ export default function wsTest( ) {
     useEffect(() => {
         let socket: WebSocket;
         const connectWebSocket = () => {
-            socket = new WebSocket("ws://35.226.133.69:8080/");
+            socket = new WebSocket("wss://35.226.133.69:8080/");
 
             socket.onopen = function (event) {
                 console.log("WebSocket connection opened");
