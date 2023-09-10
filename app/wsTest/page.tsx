@@ -1,7 +1,57 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { updateChatToxicity } from "../../utils/utils";
+
+function segmentMessageBasedOnWidth(
+    message,
+    containerWidth,
+    fontStyle = "14px monospace"
+) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.font = fontStyle;
+
+    const words = message.split(" ");
+    let currentLine = "";
+    let lines = [];
+
+    for (let word of words) {
+        let testLine = currentLine + word + " ";
+        let testLineWidth = ctx.measureText(testLine).width;
+
+        if (testLineWidth > containerWidth && currentLine !== "") {
+            lines.push(currentLine);
+            currentLine = word + " ";
+        } else {
+            currentLine = testLine;
+        }
+    }
+
+    if (currentLine !== "") {
+        lines.push(currentLine);
+    }
+
+    return lines;
+}
+
+const Message = ({ message, containerWidth }) => {
+    const segments = segmentMessageBasedOnWidth(
+        message,
+        containerWidth,
+        "14px monospace"
+    );
+
+    return (
+        <div className="flex-grow flex flex-col">
+            {segments.map((seg, index) => (
+                <div className="flex whitespace-nowrap" key={index}>
+                    <span className="text-white">|</span>
+                    <span className="text-white ml-2">{seg}</span>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 export default function wsTest({ channelName }) {
     const [chats, setChats] = useState<string[]>([]);
@@ -9,7 +59,6 @@ export default function wsTest({ channelName }) {
 
     const handleLabelToxicity = async (chatId, isToxic, timestamp) => {
         const updatedChats = chats.map((chat) => {
-            // console.log(chat.chat_id, chatId, isToxic);
             if (chat.chat_id === chatId) {
                 return {
                     ...chat,
@@ -19,31 +68,30 @@ export default function wsTest({ channelName }) {
             return chat;
         });
         setChats(updatedChats);
-
-        // Update Firestore
         await updateChatToxicity(channelName, chatId, isToxic, timestamp);
     };
 
+    const chatListRef = useRef(null);
+
     useEffect(() => {
         let socket: WebSocket;
-        // const socket = new WebSocket('ws://localhost:8765/');
-        // let socket = new WebSocket("ws://localhost:8080/");
-        
         const connectWebSocket = () => {
-        
-            let socket = new WebSocket("ws://35.226.133.69:8080/");
-            // console.log(socket);
+            socket = new WebSocket("ws://35.226.133.69:8080/");
+
             socket.onopen = function (event) {
                 console.log("WebSocket connection opened");
                 setIsConnected(true);
-                //   let jsonData = JSON.stringify({test: "Hello, Secure Server!"});
-                //   socket.send(jsonData);
             };
 
             socket.onmessage = function (event) {
                 let jsonData = JSON.parse(event.data);
-                // console.log(jsonData);
                 setChats((prevChats) => [...prevChats, jsonData]);
+
+                // Autoscroll to the bottom when new message arrives
+                if (chatListRef.current) {
+                    chatListRef.current.scrollTop =
+                        chatListRef.current.scrollHeight;
+                }
             };
 
             socket.onerror = function (error) {
@@ -70,30 +118,71 @@ export default function wsTest({ channelName }) {
         };
     }, []);
 
+    const containerRef = useRef(null);
+    const [width, setWidth] = useState(0);
+
+    useEffect(() => {
+        function handleResize() {
+            if (containerRef.current) {
+                setWidth(containerRef.current.offsetWidth);
+            }
+        }
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [containerRef]);
+
+    const timestampWidth = 60;
+    const usernameWidth = 100;
+    const margins = 24;
+    const buttonWidth = 80;
+
+    const messageWidth =
+        width - timestampWidth - usernameWidth - margins - buttonWidth;
+
     return (
-        <div className="bg-gray-800 p-6 rounded-lg max-w-3xl mx-auto mt-12">
-            <h2 className="text-white text-center mb-4">Chats</h2>
-            <ul className="divide-y divide-gray-600">
-                {chats.map((chat, index) => (
+        <div
+            className="bg-black p-4 h-full min-h-screen font-mono text-xs overflow-x-hidden overflow-anchor-enabled"
+            ref={containerRef}
+        >
+            <div className="border-b border-gray-700 mb-4">
+                <h2 className="text-white text-base">omfs24 chat</h2>
+            </div>
+
+            <ul
+                className="flex flex-col-reverse overflow-y-auto w-full h-[80vh] mb-4"
+                ref={chatListRef}
+            >
+                {[...chats].reverse().map((chat, index) => (
                     <li
                         key={index}
-                        className={`py-2 px-3 ${
-                            chat.is_toxic === true
-                                ? "bg-red-600"
-                                : index % 2 === 0
-                                ? "bg-gray-700"
-                                : "bg-gray-800"
+                        className={`py-0 border-b border-gray-700 flex items-start ${
+                            chat.is_toxic ? "bg-red-600" : ""
                         }`}
                     >
-                        <strong className="text-green-400">
-                            {chat.username ? chat.username + ":" : ""}
-                        </strong>
-
-                        <span className="text-white ml-2">
-                            {chat.chat_message}
+                        <span className="text-green-400 font-bold inline-block w-20 mr-4 flex-none">
+                            {new Date(chat.timestamp).toLocaleTimeString(
+                                "en-US",
+                                {
+                                    hour12: false,
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                }
+                            )}
                         </span>
+                        <span className="inline-block w-32 text-right font-bold text-green-400 mr-4 flex-none">
+                            {chat.username || ""}
+                        </span>
+                        <div className="flex-grow overflow-x-hidden">
+                            <Message
+                                message={chat.chat_message}
+                                containerWidth={messageWidth}
+                            />
+                        </div>
                         <button
-                            className="text-white ml-2 bg-blue-500 px-2 py-1 rounded"
+                            className="ml-4 text-white px-2 py-0.5 flex-none"
                             onClick={() =>
                                 handleLabelToxicity(
                                     chat.chat_id,
@@ -102,14 +191,8 @@ export default function wsTest({ channelName }) {
                                 )
                             }
                         >
-                            {chat.is_toxic ? "Not Toxic" : "Toxic"}
+                            {chat.is_toxic ? "Toxic" : "Not Toxic"}
                         </button>
-
-                        <span className="text-white ml-2">{chat.chat_id}</span>
-
-                        <span className="text-gray-400 text-sm ml-4">
-                            {new Date(chat.timestamp).toLocaleString()}
-                        </span>
                     </li>
                 ))}
             </ul>
