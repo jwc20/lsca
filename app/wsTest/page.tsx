@@ -1,204 +1,130 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { updateChatToxicity } from "../../utils/utils";
 
-function segmentMessageBasedOnWidth(
-    message,
-    containerWidth,
-    fontStyle = "14px monospace"
-) {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    ctx.font = fontStyle;
+// export default function wsTest() {
+//     return (
+//         <div>
+//             {/* center the div tag in the middle of the screen both horizontally and vertically */}
+//             <div className="flex justify-center items-center h-screen">
+//                 <div className="text-xs sm:text-lg md:text-xl lg:text-2xl xl:text-6xl uppercase font-black">
+//                     <pre>
+//                         <code>{`
+//         Me    O
+//              /|\\         Your Mom
+//               |_  ___O
+//              / \\ /\\  \\
 
-    const words = message.split(" ");
-    let currentLine = "";
-    let lines = [];
+//         Server was shut down to save money.
+//         See you next year!
+//            `}
+//                         </code>
+//                     </pre>
+//                     <a href="chatdb/2023/08/31/12" className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black">chatdb/08/31/12</a>
+//                     <br />
+//                     <a href="chatdb/2023/09/23/04" className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black">chatdb/08/23/04</a>
+//                     <br />
+//                     <a href="/maycggf" className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black">more "art"</a>
+//                     <br />
+//                     <a href="/mayhcgf" className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black">even more "art"</a>
+//                 </div>
+//             </div>
+//         </div>
+//     )
+// }
+import React, { useState } from "react";
 
-    for (let word of words) {
-        let testLine = currentLine + word + " ";
-        let testLineWidth = ctx.measureText(testLine).width;
+export default function wsTest() {
+    const [isOpen, setIsOpen] = useState(false);
 
-        if (testLineWidth > containerWidth && currentLine !== "") {
-            lines.push(currentLine);
-            currentLine = word + " ";
-        } else {
-            currentLine = testLine;
+    const startDate = new Date(2023, 7, 31, 12); // Month is 0-indexed
+    const endDate = new Date(2023, 8, 23, 4); // Month is 0-indexed
+
+    const generateLinks = () => {
+        let currentDate = startDate;
+        const links = [];
+
+        while (currentDate <= endDate) {
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+            const day = String(currentDate.getDate()).padStart(2, "0");
+            const hour = String(currentDate.getHours()).padStart(2, "0");
+
+            links.push(`chatdb/${year}/${month}/${day}/${hour}`);
+            currentDate.setHours(currentDate.getHours() + 1);
         }
-    }
 
-    if (currentLine !== "") {
-        lines.push(currentLine);
-    }
-
-    return lines;
-}
-
-const Message = ({ message, containerWidth }) => {
-    const segments = segmentMessageBasedOnWidth(
-        message,
-        containerWidth,
-        "14px monospace"
-    );
-
-    return (
-        <div className="flex-grow flex flex-col">
-            {segments.map((seg, index) => (
-                <div className="flex whitespace-nowrap" key={index}>
-                    <span className="text-white">|</span>
-                    <span className="text-white ml-2">{seg}</span>
-                </div>
-            ))}
-        </div>
-    );
-};
-
-export default function wsTest( ) {
-    const channelName = "omfs24"; // TODO: for test change later 
-    const [chats, setChats] = useState<string[]>([]);
-    const [isConnected, setIsConnected] = useState(false);
-
-    const handleLabelToxicity = async (chatId, isToxic, timestamp) => {
-        const updatedChats = chats.map((chat) => {
-            if (chat.chat_id === chatId) {
-                return {
-                    ...chat,
-                    is_toxic: isToxic,
-                };
-            }
-            return chat;
-        });
-        setChats(updatedChats);
-        await updateChatToxicity(channelName, chatId, isToxic, timestamp);
+        return links;
     };
 
-    const chatListRef = useRef(null);
-
-    useEffect(() => {
-        let socket: WebSocket;
-        const connectWebSocket = () => {
-            socket = new WebSocket("wss://omfs24.com:8080/");
-            // socket = new WebSocket("wss://35.226.133.69:8080/");
-
-
-            socket.onopen = function (event) {
-                console.log("WebSocket connection opened");
-                setIsConnected(true);
-            };
-
-            socket.onmessage = function (event) {
-                let jsonData = JSON.parse(event.data);
-                setChats((prevChats) => [...prevChats, jsonData]);
-
-                // Autoscroll to the bottom when new message arrives
-                if (chatListRef.current) {
-                    chatListRef.current.scrollTop =
-                        chatListRef.current.scrollHeight;
-                }
-            };
-
-            socket.onerror = function (error) {
-                console.error("WebSocket Error:", error);
-            };
-
-            socket.onclose = (event) => {
-                if (event.wasClean) {
-                    console.log(
-                        `Closed clean, code=${event.code}, reason=${event.reason}`
-                    );
-                } else {
-                    console.log("Connection died");
-                }
-                setIsConnected(false);
-                setTimeout(connectWebSocket, 5000); // try to reconnect in 5 seconds
-            };
-        };
-
-        connectWebSocket();
-
-        return () => {
-            socket.close();
-        };
-    }, []);
-
-    const containerRef = useRef(null);
-    const [width, setWidth] = useState(0);
-
-    useEffect(() => {
-        function handleResize() {
-            if (containerRef.current) {
-                setWidth(containerRef.current.offsetWidth);
-            }
-        }
-
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [containerRef]);
-
-    const timestampWidth = 60;
-    const usernameWidth = 100;
-    const margins = 24;
-    const buttonWidth = 80;
-
-    const messageWidth =
-        width - timestampWidth - usernameWidth - margins - buttonWidth;
-
     return (
-        <div
-            className="bg-black p-4 h-full min-h-screen font-mono text-xs overflow-x-hidden overflow-anchor-enabled"
-            ref={containerRef}
-        >
-            <div className="border-b border-gray-700 mb-4">
-                <h2 className="text-white text-base">omfs24 chat</h2>
-            </div>
+        <div>
+            {/* center the div tag in the middle of the screen both horizontally and vertically */}
+            <div className="flex flex-col justify-center items-center h-screen">
+                <div className="text-xs sm:text-lg md:text-xl lg:text-2xl xl:text-6xl uppercase font-black">
+                    <pre>
+                        <code>
+                            {`
+    Me    O 
+         /|\\         Your Mom 
+          |_  ___O
+         / \\ /\\  \\  
 
-            <ul
-                className="flex flex-col-reverse overflow-y-auto w-full h-[80vh] mb-4"
-                ref={chatListRef}
-            >
-                {[...chats].reverse().map((chat, index) => (
-                    <li
-                        key={index}
-                        className={`py-0 border-b border-gray-700 flex items-start ${
-                            chat.is_toxic ? "bg-red-600" : ""
-                        }`}
+    Server was shut down to save money.
+    See you next year!
+           `}
+                        </code>
+                    </pre>
+                </div>
+                <div className="relative">
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="text-xl uppercase font-black text-blue-700"
                     >
-                        <span className="text-green-400 font-bold inline-block w-20 mr-4 flex-none">
-                            {new Date(chat.timestamp).toLocaleTimeString(
-                                "en-US",
-                                {
-                                    hour12: false,
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit",
-                                }
-                            )}
-                        </span>
-                        <span className="inline-block w-32 text-right font-bold text-green-400 mr-4 flex-none">
-                            {chat.username || ""}
-                        </span>
-                        <div className="flex-grow overflow-x-hidden">
-                            <Message
-                                message={chat.chat_message}
-                                containerWidth={messageWidth}
-                            />
+                        ChatDB Links
+                    </button>
+                    {isOpen && (
+                        <div className="absolute mt-2 w-64 rounded-md shadow-lg bg-white">
+                            <div
+                                className="py-1"
+                                role="menu"
+                                aria-orientation="vertical"
+                                aria-labelledby="options-menu"
+                            >
+                                {generateLinks().map((link) => (
+                                    <a
+                                        key={link}
+                                        href={link}
+                                        className="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                        role="menuitem"
+                                    >
+                                        {link}
+                                    </a>
+                                ))}
+                            </div>
                         </div>
-                        <button
-                            className="ml-4 text-white px-2 flex-none"
-                            onClick={() =>
-                                handleLabelToxicity(
-                                    chat.chat_id,
-                                    !chat.is_toxic,
-                                    chat.timestamp
-                                )
-                            }
-                        >
-                            {chat.is_toxic ? "Toxic" : "Not Toxic"}
-                        </button>
-                    </li>
-                ))}
-            </ul>
+                    )}
+                </div>
+                <br />
+                <a
+                    href="/maycggf"
+                    className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black"
+                >
+                    more "art"
+                </a>
+                <br />
+                <a
+                    href="/mayhcgf"
+                    className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black"
+                >
+                    even more "art"
+                </a>
+                <br />
+                <a
+                    href="/chat/sodapoppin"
+                    className="text-sm sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black text-blue-700"
+                >
+                    chat with no ml classifier, just a chat, no db storage. change the name in the url to change the chat name
+                </a>
+            </div>
         </div>
     );
 }
