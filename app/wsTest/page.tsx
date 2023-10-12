@@ -55,6 +55,77 @@ export default function wsTest() {
         return links;
     };
 
+    // return (
+    //     <div>
+    //         {/* center the div tag in the middle of the screen both horizontally and vertically */}
+    //         <div className="flex flex-col justify-center items-center h-screen">
+    //             <div className="text-xs sm:text-lg md:text-xl lg:text-2xl xl:text-6xl uppercase font-black">
+    //                 <pre>
+    //                     <code>
+    //                         {`
+    // Me    O 
+    //      /|\\         Your Mom 
+    //       |_  ___O
+    //      / \\ /\\  \\  
+
+    // Server was shut down to save money.
+    // See you next year!
+    //        `}
+    //                     </code>
+    //                 </pre>
+    //             </div>
+    //             <div className="relative">
+    //                 <button
+    //                     onClick={() => setIsOpen(!isOpen)}
+    //                     className="text-xl uppercase font-black text-blue-700"
+    //                 >
+    //                     ChatDB Links
+    //                 </button>
+    //                 {isOpen && (
+    //                     <div className="absolute mt-2 w-64 rounded-md shadow-lg bg-white">
+    //                         <div
+    //                             className="py-1"
+    //                             role="menu"
+    //                             aria-orientation="vertical"
+    //                             aria-labelledby="options-menu"
+    //                         >
+    //                             {generateLinks().map((link) => (
+    //                                 <a
+    //                                     key={link}
+    //                                     href={link}
+    //                                     className="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+    //                                     role="menuitem"
+    //                                 >
+    //                                     {link}
+    //                                 </a>
+    //                             ))}
+    //                         </div>
+    //                     </div>
+    //                 )}
+    //             </div>
+    //             <br />
+    //             <a
+    //                 href="/maycggf"
+    //                 className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black"
+    //             >
+    //                 more "art"
+    //             </a>
+    //             <br />
+    //             <a
+    //                 href="/mayhcgf"
+    //                 className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black"
+    //             >
+    //                 even more "art"
+    //             </a>
+    //             <br />
+    //             <a
+    //                 href="/chat/sodapoppin"
+    //                 className="text-sm sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black text-blue-700"
+    //             >
+    //                 chat with no ml classifier, just a chat, no db storage. change the name in the url to change the chat name
+    //             </a>
+    //         </div>
+    //     </div>
     return (
         <div>
             {/* center the div tag in the middle of the screen both horizontally and vertically */}
@@ -63,11 +134,6 @@ export default function wsTest() {
                     <pre>
                         <code>
                             {`
-    Me    O 
-         /|\\         Your Mom 
-          |_  ___O
-         / \\ /\\  \\  
-
     Server was shut down to save money.
     See you next year!
            `}
