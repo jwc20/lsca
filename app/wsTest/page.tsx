@@ -169,7 +169,7 @@ export default function wsTest() {
                         </div>
                     )}
                 </div>
-                <br />
+{/*                 <br />
                 <a
                     href="/maycggf"
                     className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black"
@@ -189,7 +189,7 @@ export default function wsTest() {
                     className="text-sm sm:text-sm md:text-lg lg:text-xl xl:text-2xl uppercase font-black text-blue-700"
                 >
                     chat with no ml classifier, just a chat, no db storage. change the name in the url to change the chat name
-                </a>
+                </a> */}
             </div>
         </div>
     );
